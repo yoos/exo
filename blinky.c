@@ -80,8 +80,9 @@ int main(void)
 	usb_init();
 
 	// LEDs
-	DDRB |= _BV(1) | _BV(2) | _BV(3);
-	PORTB &= ~(_BV(1) | _BV(2) | _BV(3));   // Start LEDs off
+	DDRB  |= 0x0f;
+	PORTB |= _BV(0);
+	PORTB |= (_BV(LED_R_PIN) | _BV(LED_G_PIN) | _BV(LED_B_PIN));   // Start LEDs off
 
 	// ICU on Timer3, pin C7
 	PORTC |= _BV(7);   // Enable pullup
@@ -97,7 +98,7 @@ int main(void)
 	//TCCR3B = 0x03;   // Prescaler
 
 	// Debug
-	DDRD |= _BV(0);
+	DDRD |= _BV(3);
 
 	// PINF1 acc z
 
@@ -136,8 +137,8 @@ int main(void)
 
 		// 0x85 = 1064 us
 		// 0xe8 = 1856 us
-		PORTD |= _BV(0);
-		PORTD &= ~_BV(0);
+		PORTD |= _BV(3);
+		PORTD &= ~_BV(3);
 
 		dc += dir;
 		if (dc < -90) {
