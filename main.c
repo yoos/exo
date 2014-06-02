@@ -90,64 +90,46 @@ int main(void)
 	setup_icu();
 	initESC();
 
-	// PWM out on Timer3, pin C6
-	//OCR3AL = 0x85;   //Load Pulse width
-	//OCR3AH = 0;
-	//DDRC |= _BV(6);   //Port C6 as o/p
-	//TCCR3A = 0x81;   //8-bit, Non-Inverted PWM
-	//TCCR3B = 0x03;   // Prescaler
-
 	// Debug
 	DDRD |= _BV(3);
 
-	// PINF1 acc z
-
-	glove_init();
-
 	struct glove_state_t glove_state;
+	glove_init();
 
 	armESC();
 
 	int state = 0;
 	while(1) {
-		//switch(state) {
-		//	case 0:
-		//		PORTB = _BV(LED_R_PIN);
-		//		state = 1;
-		//		break;
-		//	case 1:
-		//		PORTB = _BV(LED_G_PIN);
-		//		state = 2;
-		//		break;
-		//	case 2:
-		//		state = 0;
-		//		PORTB = _BV(LED_B_PIN);
-		//		break;
-		//}
-
 		glove_update(&glove_state);
 
-		//print("PWM: ");
-		//phex(glove_state.raw_input);
-		//print("\n");
+		// print("ADC: ");
+		// phex(glove_state.raw_input);
+		// print("\n");
 
-		print("RPM: ");
-		phex16(dc);
-		print("\n");
+		// print("Direction: ");
+		// phex(glove_direction(&glove_state));
+		// print("\n");
+
+		// print("RPM: ");
+		// phex16(dc);
+		// print("\n");
 
 		// 0x85 = 1064 us
 		// 0xe8 = 1856 us
 		PORTD |= _BV(3);
 		PORTD &= ~_BV(3);
 
-		dc += dir;
-		if (dc < -90) {
-			dir = 1;
+		enum direction dir = glove_direction(&glove_state);
+		if(dir == STOP) {
+		  setESC(0);
+		  print("Stopped\n");
+		} else if(dir == UP) {
+		  setESC(100);
+		  print("Moving up\n");
+		} else if(dir == DOWN) {
+		  setESC(-100);
+		  print("Moving down\n");
 		}
-		else if (dc > 90) {
-			dir = -1;
-		}
-		setESC(dc);
 
 		_delay_ms(5);
 	}
